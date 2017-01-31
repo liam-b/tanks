@@ -1,7 +1,7 @@
 var gulp = require('gulp')
 var sass = require('gulp-sass')
 var pug = require('gulp-pug')
-var babel = require('gulp-babel')
+var webpack = require('webpack-stream');
 
 gulp.task('sass', function () {
   return gulp.src('app/scss/**/*.sass')
@@ -15,16 +15,14 @@ gulp.task('pug', function () {
     .pipe(gulp.dest('dist/'))
 })
 
-gulp.task('js', function () {
-  return gulp.src('app/js/**/*.js')
-    .pipe(babel({
-      presets: ['es2015']
-    }))
-    .pipe(gulp.dest('dist/js'))
-})
+gulp.task('webpack', function () {
+  return gulp.src('app/js/index.js')
+    .pipe(webpack( require('./webpack.config.js') ))
+    .pipe(gulp.dest('dist/'));
+});
 
-gulp.task('watch', ['sass', 'js', 'pug'], function () {
+gulp.task('watch', ['sass', 'webpack', 'pug'], function () {
   gulp.watch('app/scss/**/*.sass', ['sass'])
-  gulp.watch('app/js/**/*.js', ['js'])
+  gulp.watch('app/js/**/*.js', ['webpack'])
   gulp.watch('app/*.pug', ['pug'])
 })

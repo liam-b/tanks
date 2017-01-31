@@ -2,10 +2,10 @@ html(lang="en")
   head
     title Tanky Game
     
-    script(src='js/index.js')
-    
     link(rel='stylesheet', href='css/styles.css')
     
   body
+    script(src='main.bundle.js')
+  
     h1(id='title') Tanks
-    canvas(width='1250', height='550')
+    canvas(id='game', width='1250', height='550')

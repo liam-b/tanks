@@ -10,9 +10,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-loader": "^6.2.10",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-pug": "^3.2.0",
-    "gulp-sass": "^3.1.0"
+    "gulp-sass": "^3.1.0",
+    "matter-js": "^0.11.1",
+    "pug-loader": "^2.3.0",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.2.1"
   }
 }
