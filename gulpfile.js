@@ -4,7 +4,7 @@ var pug = require('gulp-pug')
 var babel = require('gulp-babel')
 
 gulp.task('sass', function () {
-  return gulp.src('app/scss/**/*.scss')
+  return gulp.src('app/scss/**/*.sass')
     .pipe(sass())
     .pipe(gulp.dest('dist/css'))
 })
@@ -24,7 +24,7 @@ gulp.task('js', function () {
 })
 
 gulp.task('watch', ['sass', 'js', 'pug'], function () {
-  gulp.watch('app/scss/**/*.scss', ['sass'])
+  gulp.watch('app/scss/**/*.sass', ['sass'])
   gulp.watch('app/js/**/*.js', ['js'])
   gulp.watch('app/*.pug', ['pug'])
 })
