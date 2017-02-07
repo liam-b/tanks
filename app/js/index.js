@@ -1,12 +1,19 @@
-var Matter = require('matter-js')
-var Player = require('./player.js')
-var listeners = require('./listeners.js')
+import Player from './player.js'
+import Opponent from './opponent.js'
+import Matter from 'matter-js'
+import * as listeners from './listeners.js'
+
+firebase.initializeApp({
+  apiKey: "AIzaSyDVzyV0aIznPEuu83CfGBrvXzXOxG9I9xc",
+  authDomain: "tanks-edbcc.firebaseapp.com",
+  databaseURL: "https://tanks-edbcc.firebaseio.com",
+  storageBucket: "tanks-edbcc.appspot.com",
+  messagingSenderId: "809665464388"
+})
 
 document.onkeydown = listeners.onkeydown
 document.onkeyup = listeners.onkeyup
 document.onmousemove = listeners.onmousemove
-var key = listeners.key
-var mouse = listeners.mouse
 
 var engine = Matter.Engine.create()
 engine.world.gravity.y = 0
@@ -36,64 +43,13 @@ var render = Matter.Render.create({
     engine: engine
 })
 
-var canvas = document.querySelector('.game-canvas canvas')
-var boundingRectangle = canvas.getBoundingClientRect()
-
-console.log(Player)
-var player = new Player.default (Matter, render)
+var input = {
+  mouse: listeners.mouse,
+  key: listeners.key
+}
 
 Math.randomRange = function (min, max) {
   return Math.random() * (max - min) + min
-}
-
-function rotateAroundPoint (body, rotation, point) {
-  var cos = Math.cos(rotation)
-  var sin = Math.sin(rotation)
-
-  var dx = body.position.x - point.x
-  var dy = body.position.y - point.y
-
-  Matter.Body.setPosition(body, {
-      x: point.x + (dx * cos - dy * sin),
-      y: point.y + (dx * sin + dy * cos)
-  })
-
-  Matter.Body.setAngle(body, rotation)
-}
-
-function keyInputs () {
-  let rotation = player.body.angle + (90 * Math.PI / 180)
-
-  if (key.w) {
-    Matter.Body.applyForce(player.body, Matter.Vector.create(player.body.position.x, player.body.position.y), {x: -player.settings.speed * Math.cos(rotation), y: -player.settings.speed * Math.sin(rotation)})
-  }
-  if (key.s) {
-    Matter.Body.applyForce(player.body, Matter.Vector.create(player.body.position.x, player.body.position.y), {x: player.settings.speed * Math.cos(rotation), y: player.settings.speed * Math.sin(rotation)})
-  }
-  if (key.a) {
-    player.body.torque = -player.settings.turnSpeed
-  }
-  if (key.d) {
-    player.body.torque = player.settings.turnSpeed
-  }
-
-  if (key.space) {
-    if (player.reloadCounter <= engine.timing.timestamp) {
-      spawnBullet()
-      player.reloadCounter = engine.timing.timestamp + player.settings.shot.reload
-    }
-  }
-}
-
-function spawnBullet () {
-  let bullet = player.bullet(Matter)
-
-  Matter.Body.applyForce(bullet, Matter.Vector.create(player.body.position.x, player.body.position.y), {
-    x: player.settings.shot.speed * Math.cos(player.turret.angle + (90 * Math.PI / 180) + Math.randomRange(player.settings.shot.spray, -player.settings.shot.spray) * Math.PI / 180),
-    y: player.settings.shot.speed * Math.sin(player.turret.angle + (90 * Math.PI / 180) + Math.randomRange(player.settings.shot.spray, -player.settings.shot.spray) * Math.PI / 180)
-  })
-  Matter.World.add(engine.world, bullet)
-  player.bullets.push(bullet)
 }
 
 function bulletCheck () {
@@ -113,21 +69,45 @@ function bulletCheck () {
   }
 }
 
-function updatePositions () {
-  Matter.Body.setPosition(player.turret, {x: player.body.position.x, y: player.body.position.y + 25})
-  Matter.Body.setPosition(player.circle, {x: player.body.position.x, y: player.body.position.y})
-  Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
-  rotateAroundPoint(player.turret, -Math.atan2(mouse.x - render.options.width / 2 - boundingRectangle.left, mouse.y - render.options.height / 2 - boundingRectangle.top), {x: player.body.position.x, y: player.body.position.y})
+function updatePlayers () {
+  player.update(input, boundingRectangle)
+  opponent.update()
 }
 
-Matter.Events.on(engine, 'beforeUpdate', function () {
-  keyInputs()
-  bulletCheck()
-  updatePositions()
-  // console.log(player.body.position)
-})
+function sendToFirebase () {
+  if (player.firebaseCounter <= engine.timing.timestamp) {
+    firebase.database().ref('/players/0').set({
+      x: player.body.position.x,
+      y: player.body.position.y,
+      awake: new Date().valueOf()
+    })
 
-Matter.World.add(engine.world, [player.body, player.turret, player.circle])
+    player.firebaseCounter = engine.timing.timestamp + player.firebaseDelay
+  }
+}
+
+function firebaseListen () {
+  firebase.database().ref('/players/1').on('value', function (snapshot) {
+    let data = snapshot.val()
+  })
+}
+
+var canvas = document.querySelector('.game-canvas canvas')
+var boundingRectangle = canvas.getBoundingClientRect()
+
+var player = new Player (Matter, render, engine, '#4ECDC4')
+var opponent = new Opponent (Matter, render, engine, '#C44D58')
+
+firebaseListen()
+
+Matter.Events.on(engine, 'beforeUpdate', function () {
+  bulletCheck()
+  updatePlayers()
+
+  Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
+
+  sendToFirebase()
+})
 
 Matter.Engine.run(engine)
 Matter.Render.run(render)

@@ -1,77 +1,44 @@
-export default class Player {
-  constructor (Matter, render) {
-    this.color = '#4ECDC4'
-    this.masks = {
-      body: 0x0001,
-      turret: 0x0002,
-      circle: 0x0004,
-      bullet: 0x0008
-    }
+import Bullet from './bullet.js'
+import Tank from './tank.js'
 
-    this.bullets = []
-    this.reloadCounter = 0
-
-    this.settings = {
-      speed: 0.001,
-      turnSpeed: 0.04,
-      health: 100,
-      shot: {
-        speed: 0.004,
-        reload: 200,
-        distance: 1000,
-        spray: 4,
-        damage: 10
-      }
-    }
-
-    this.body = Matter.Bodies.rectangle(render.options.width / 2, render.options.height / 2, 45, 70, {
-      collisionFilter: {
-        mask: this.masks.body
-      },
-      render: {
-        strokeStyle: Matter.Common.shadeColor(this.color, -20),
-        fillStyle: this.color
-      }
-    })
-
-    this.turret = Matter.Bodies.rectangle(render.options.width / 2, render.options.height / 2 , 12, 50, {
-      collisionFilter: {
-        mask: this.masks.turret
-      },
-      render: {
-        strokeStyle: Matter.Common.shadeColor(this.color, -20),
-        fillStyle: this.color
-      }
-    })
-
-    this.circle = Matter.Bodies.circle(render.options.width / 2, render.options.height / 2, 12, {
-      collisionFilter: {
-        mask: this.masks.circle
-      },
-      render: {
-        strokeStyle: Matter.Common.shadeColor(this.color, -20),
-        fillStyle: this.color
-      }
-    })
-
-    this.body.frictionAir = 0.05
-    this.body.friction = 1
-    this.body.restitution = 0
+export default class Player extends Tank {
+  constructor (Matter, render, engine, color) {
+    super(Matter, render, engine, color)
   }
 
-  bullet (Matter) {
-    let bullet = Matter.Bodies.circle(this.body.position.x, this.body.position.y, 5, {
-      collisionFilter: {
-        mask: this.masks.bullet
-      },
-      render: {
-        strokeStyle: Matter.Common.shadeColor(this.color, -20),
-        fillStyle: this.color
+  update (input, boundingRectangle) {
+    this.Matter.Body.setPosition(this.turret, {x: this.body.position.x, y: this.body.position.y + 25})
+    this.Matter.Body.setPosition(this.circle, {x: this.body.position.x, y: this.body.position.y})
+    this._handleInput(input, boundingRectangle)
+  }
+
+  _handleInput (input, boundingRectangle) {
+    this.rotateAroundPoint(-Math.atan2(input.mouse.x - this.render.options.width / 2 - boundingRectangle.left, input.mouse.y - this.render.options.height / 2 - boundingRectangle.top), {x: this.body.position.x, y: this.body.position.y})
+
+    let rotation = this.body.angle + (90 * Math.PI / 180)
+
+    if (input.key.w) {
+      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
+    }
+    if (input.key.s) {
+      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
+    }
+    if (input.key.a) {
+      this.body.torque = -this.settings.turnSpeed
+    }
+    if (input.key.d) {
+      this.body.torque = this.settings.turnSpeed
+    }
+
+    if (input.key.space) {
+      if (this.reloadCounter <= this.engine.timing.timestamp) {
+        let bullet = new Bullet (this.Matter, this)
+
+        this.Matter.World.add(this.engine.world, bullet.body)
+        this.bullets.push(bullet.body)
+
+        this.reloadCounter = this.engine.timing.timestamp + this.settings.shot.reload
       }
-    })
-
-    bullet.frictionAir = 0
-
-    return bullet
+    }
   }
 }
