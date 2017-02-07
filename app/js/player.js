@@ -4,6 +4,20 @@ import Tank from './tank.js'
 export default class Player extends Tank {
   constructor (Matter, render, engine, color) {
     super(Matter, render, engine, color)
+
+    this.reloadCounter = 0
+    this.settings = {
+      speed: 0.001,
+      turnSpeed: 0.04,
+      health: 100,
+      shot: {
+        speed: 0.004,
+        reload: 200,
+        distance: 1000,
+        spray: 4,
+        damage: 10
+      }
+    }
   }
 
   update (input, boundingRectangle) {

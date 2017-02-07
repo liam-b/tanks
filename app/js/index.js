@@ -1,15 +1,9 @@
+import * as listeners from './listeners.js'
 import Player from './player.js'
 import Opponent from './opponent.js'
-import Matter from 'matter-js'
-import * as listeners from './listeners.js'
+import Firebase from './firebase.js'
 
-firebase.initializeApp({
-  apiKey: "AIzaSyDVzyV0aIznPEuu83CfGBrvXzXOxG9I9xc",
-  authDomain: "tanks-edbcc.firebaseapp.com",
-  databaseURL: "https://tanks-edbcc.firebaseio.com",
-  storageBucket: "tanks-edbcc.appspot.com",
-  messagingSenderId: "809665464388"
-})
+import Matter from 'matter-js'
 
 document.onkeydown = listeners.onkeydown
 document.onkeyup = listeners.onkeyup
@@ -71,25 +65,7 @@ function bulletCheck () {
 
 function updatePlayers () {
   player.update(input, boundingRectangle)
-  opponent.update()
-}
-
-function sendToFirebase () {
-  if (player.firebaseCounter <= engine.timing.timestamp) {
-    firebase.database().ref('/players/0').set({
-      x: player.body.position.x,
-      y: player.body.position.y,
-      awake: new Date().valueOf()
-    })
-
-    player.firebaseCounter = engine.timing.timestamp + player.firebaseDelay
-  }
-}
-
-function firebaseListen () {
-  firebase.database().ref('/players/1').on('value', function (snapshot) {
-    let data = snapshot.val()
-  })
+  opponent.update(Window.data, database.id)
 }
 
 var canvas = document.querySelector('.game-canvas canvas')
@@ -97,8 +73,9 @@ var boundingRectangle = canvas.getBoundingClientRect()
 
 var player = new Player (Matter, render, engine, '#4ECDC4')
 var opponent = new Opponent (Matter, render, engine, '#C44D58')
+var database = new Firebase (firebase)
 
-firebaseListen()
+Window.data = {}
 
 Matter.Events.on(engine, 'beforeUpdate', function () {
   bulletCheck()
@@ -106,7 +83,17 @@ Matter.Events.on(engine, 'beforeUpdate', function () {
 
   Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
 
-  sendToFirebase()
+  database.upload(player, engine)
+})
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelector('#changeServer').onclick = function () {
+    database.moveTo({
+      lobby: parseInt(document.querySelector('#lobby').value),
+      id: parseInt(document.querySelector('#player').value)
+    })
+    database.listen(opponent)
+  }
 })
 
 Matter.Engine.run(engine)

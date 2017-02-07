@@ -12,24 +12,10 @@ export default class Tank {
       bullet: 0x0002
     }
 
-    this.bullets = []
-    this.reloadCounter = 0
-
     this.firebaseDelay = 500
     this.firebaseCounter = 0
 
-    this.settings = {
-      speed: 0.001,
-      turnSpeed: 0.04,
-      health: 100,
-      shot: {
-        speed: 0.004,
-        reload: 200,
-        distance: 1000,
-        spray: 4,
-        damage: 10
-      }
-    }
+    this.bullets = []
 
     this.body = this.Matter.Bodies.rectangle(this.render.options.width / 2, this.render.options.height / 2, 45, 70, {
       collisionFilter: {
