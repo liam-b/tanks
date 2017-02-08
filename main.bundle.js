@@ -54,15 +54,15 @@
 
 	var _player2 = _interopRequireDefault(_player);
 
-	var _opponent = __webpack_require__(5);
+	var _opponents = __webpack_require__(5);
 
-	var _opponent2 = _interopRequireDefault(_opponent);
+	var _opponents2 = _interopRequireDefault(_opponents);
 
-	var _firebase = __webpack_require__(6);
+	var _firebase = __webpack_require__(7);
 
 	var _firebase2 = _interopRequireDefault(_firebase);
 
-	var _matterJs = __webpack_require__(7);
+	var _matterJs = __webpack_require__(8);
 
 	var _matterJs2 = _interopRequireDefault(_matterJs);
 
@@ -129,35 +129,57 @@
 	}
 
 	function updatePlayers() {
-	  player.update(input, boundingRectangle);
-	  opponent.update(Window.data, database.id);
+	  // player.update(input, boundingRectangle)
+	  // opponent.update(Window.data, database.id)
 	}
 
 	var canvas = document.querySelector('.game-canvas canvas');
 	var boundingRectangle = canvas.getBoundingClientRect();
 
+	var doConnected = true;
+
 	var player = new _player2.default(_matterJs2.default, render, engine, '#4ECDC4');
-	var opponent = new _opponent2.default(_matterJs2.default, render, engine, '#C44D58');
+	var opponents = new _opponents2.default(_matterJs2.default, render, engine, '#C44D58');
 	var database = new _firebase2.default(firebase);
 
-	Window.data = {};
-
 	_matterJs2.default.Events.on(engine, 'beforeUpdate', function () {
-	  bulletCheck();
-	  updatePlayers();
+	  if (database.connected) {
+	    if (doConnected) {
+	      connected();
+	      doConnected = false;
+	    } else {
+	      update();
+	    }
+	  }
+	});
 
+	function connected() {
+	  opponents.generate(database.data, database.id);
+
+	  console.log(opponents.collection);
+	}
+
+	function update() {
+	  bulletCheck();
+
+	  opponents.update(database.data, database.id);
+
+	  player.update(input, boundingRectangle);
 	  _matterJs2.default.Bounds.shift(render.bounds, { x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2 });
 
 	  database.upload(player, engine);
-	});
+	}
 
 	document.addEventListener('DOMContentLoaded', function () {
-	  document.querySelector('#changeServer').onclick = function () {
-	    database.moveTo({
-	      lobby: parseInt(document.querySelector('#lobby').value),
-	      id: parseInt(document.querySelector('#player').value)
+	  document.querySelector('#connect').onclick = function () {
+	    database.connect({
+	      lobby: document.querySelector('#lobby').value,
+	      id: document.querySelector('#player').value
 	    });
-	    database.listen(opponent);
+	  };
+	  document.querySelector('#disconnect').onclick = function () {
+	    database.disconnect();
+	    database.remove();
 	  };
 	});
 
@@ -450,6 +472,66 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _opponent = __webpack_require__(6);
+
+	var _opponent2 = _interopRequireDefault(_opponent);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var OpponentCollection = function () {
+	  function OpponentCollection(Matter, render, engine, color) {
+	    _classCallCheck(this, OpponentCollection);
+
+	    this.opponent = _opponent2.default;
+	    this.collection = [];
+	    this.Matter = Matter;
+	    this.render = render;
+	    this.engine = engine;
+	    this.color = color;
+	  }
+
+	  _createClass(OpponentCollection, [{
+	    key: 'generate',
+	    value: function generate(opponents, id) {
+	      for (var opponent in opponents) {
+	        if (opponents.hasOwnProperty(opponent) && Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)] != id) {
+	          this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]));
+	        }
+	      }
+	      console.log(this.collection);
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update(data, id) {
+	      for (var opponent in this.collection) {
+	        if (this.collection.hasOwnProperty(opponent)) {
+	          // FIXME: while 0 is 'two' in collection, 0 is 'liam' in data
+	          // console.log(opponent, Object.keys(data), Object.keys(this.collection))
+	          this.collection[opponent].update(data[this.collection[opponent].id]);
+	        }
+	      }
+	    }
+	  }]);
+
+	  return OpponentCollection;
+	}();
+
+	exports.default = OpponentCollection;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _tank = __webpack_require__(4);
 
 	var _tank2 = _interopRequireDefault(_tank);
@@ -465,18 +547,21 @@
 	var Opponent = function (_Tank) {
 	  _inherits(Opponent, _Tank);
 
-	  function Opponent(Matter, render, engine, color) {
+	  function Opponent(Matter, render, engine, color, id) {
 	    _classCallCheck(this, Opponent);
 
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(Opponent).call(this, Matter, render, engine, color));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Opponent).call(this, Matter, render, engine, color));
+
+	    _this.id = id;
+	    return _this;
 	  }
 
 	  _createClass(Opponent, [{
 	    key: 'update',
-	    value: function update(data, id) {
-	      if (data != {}) {
-	        this.Matter.Body.setPosition(this.body, { x: data[Math.abs(id - 1)].x, y: data[Math.abs(id - 1)].y });
-	      }
+	    value: function update(data) {
+	      this.Matter.Body.setPosition(this.body, data.position);
+	      this.Matter.Body.setAngle(this.body, data.rotation);
+	      this.rotateAroundPoint(data.gunRotation, { x: this.body.position.x, y: this.body.position.y });
 	      this.Matter.Body.setPosition(this.turret, { x: this.body.position.x, y: this.body.position.y + 25 });
 	      this.Matter.Body.setPosition(this.circle, { x: this.body.position.x, y: this.body.position.y });
 	    }
@@ -488,7 +573,7 @@
 	exports.default = Opponent;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -505,8 +590,7 @@
 	  function Firebase(firebase) {
 	    _classCallCheck(this, Firebase);
 
-	    this.base = firebase;
-	    this.base.initializeApp({
+	    firebase.initializeApp({
 	      apiKey: "AIzaSyDVzyV0aIznPEuu83CfGBrvXzXOxG9I9xc",
 	      authDomain: "tanks-edbcc.firebaseapp.com",
 	      databaseURL: "https://tanks-edbcc.firebaseio.com",
@@ -514,23 +598,49 @@
 	      messagingSenderId: "809665464388"
 	    });
 
+	    this.base = firebase.database();
+
 	    this.lobby = -1;
 	    this.id = 0;
+
+	    this.listener;
+
+	    this.connected = false;
+	    this.data = {};
 	  }
 
 	  _createClass(Firebase, [{
-	    key: "moveTo",
-	    value: function moveTo(data) {
-	      this.lobby = data.lobby;
-	      this.id = data.id;
+	    key: "connect",
+	    value: function connect(info) {
+	      this.lobby = info.lobby;
+	      this.id = info.id;
+
+	      this.listen();
+	    }
+	  }, {
+	    key: "disconnect",
+	    value: function disconnect() {
+	      this.lobby = -1;
+	      this.id = 0;
+	      this.connected = false;
+
+	      this.base.ref.off(this.listener);
 	    }
 	  }, {
 	    key: "upload",
 	    value: function upload(player, engine) {
-	      if (player.firebaseCounter <= engine.timing.timestamp && this.lobby != -1) {
-	        this.base.database().ref("lobby/" + this.lobby + "/players/" + this.id).set({
-	          x: player.body.position.x,
-	          y: player.body.position.y,
+	      if (player.firebaseCounter <= engine.timing.timestamp && this.connected) {
+	        this.base.ref("lobbies/" + this.lobby + "/players/" + this.id).set({
+	          position: {
+	            x: player.body.position.x,
+	            y: player.body.position.y
+	          },
+	          velocity: {
+	            x: 0,
+	            y: 0
+	          },
+	          rotation: player.body.angle,
+	          gunRotation: player.turret.angle,
 	          awake: new Date().valueOf()
 	        });
 	        player.firebaseCounter = engine.timing.timestamp + player.firebaseDelay;
@@ -539,8 +649,16 @@
 	  }, {
 	    key: "listen",
 	    value: function listen() {
-	      this.base.database().ref("lobby/" + this.lobby + "/players").on('value', function (snapshot) {
-	        Window.data = snapshot.val();
+	      var doSetup = true;
+	      var that = this;
+	      this.listener = this.base.ref("lobbies/" + this.lobby + "/players").on('value', function (snapshot) {
+	        if (doSetup) {
+	          that.data = snapshot.val();
+	          that.connected = true;
+	          doSetup = false;
+	        } else {
+	          that.data = snapshot.val();
+	        }
 	      });
 	    }
 	  }]);
@@ -551,7 +669,7 @@
 	exports.default = Firebase;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var require;var require;"use strict";var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;};/**
