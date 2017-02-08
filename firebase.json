@@ -1,15 +1,18 @@
 {
-  "lobby": {
-    "0": {
+  "lobbies": {
+    "main": {
       "players": {
-        "0" : {
-          "x" : 0,
-          "y" : 0,
-          "awake": 0
-        },
-        "1" : {
-          "x" : 0,
-          "y" : 0,
+        "liam" : {
+          "position": {
+            "x" : 0,
+            "y" : 0
+          },
+          "velocity": {
+            "x" : 0,
+            "y" : 0
+          },
+          "rotation": 0,
+          "gunRotation": 0,
           "awake": 0
         }
       }

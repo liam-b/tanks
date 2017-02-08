@@ -4,9 +4,9 @@ var pug = require('gulp-pug')
 var webpack = require('webpack-stream')
 
 gulp.task('sass', function () {
-  return gulp.src('app/scss/**/*.scss')
+  return gulp.src('app/scss/**/*.sass')
     .pipe(sass())
-    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('dist/css/'))
 })
 
 gulp.task('pug', function () {

@@ -1,6 +1,6 @@
 import * as listeners from './listeners.js'
 import Player from './player.js'
-import Opponent from './opponent.js'
+import OpponentCollection from './opponents.js'
 import Firebase from './firebase.js'
 
 import Matter from 'matter-js'
@@ -64,35 +64,58 @@ function bulletCheck () {
 }
 
 function updatePlayers () {
-  player.update(input, boundingRectangle)
-  opponent.update(Window.data, database.id)
+  // player.update(input, boundingRectangle)
+  // opponent.update(Window.data, database.id)
 }
 
 var canvas = document.querySelector('.game-canvas canvas')
 var boundingRectangle = canvas.getBoundingClientRect()
 
+var doConnected = true
+
 var player = new Player (Matter, render, engine, '#4ECDC4')
-var opponent = new Opponent (Matter, render, engine, '#C44D58')
+var opponents = new OpponentCollection (Matter, render, engine, '#C44D58')
 var database = new Firebase (firebase)
 
-Window.data = {}
-
 Matter.Events.on(engine, 'beforeUpdate', function () {
-  bulletCheck()
-  updatePlayers()
+  if (database.connected) {
+    if (doConnected) {
+      connected()
+      doConnected = false
+    }
+    else {
+      update()
+    }
+  }
+})
 
+function connected () {
+  opponents.generate(database.data, database.id)
+
+  console.log(opponents.collection)
+}
+
+function update () {
+  bulletCheck()
+
+  opponents.update(database.data, database.id)
+
+  player.update(input, boundingRectangle)
   Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
 
   database.upload(player, engine)
-})
+}
 
 document.addEventListener('DOMContentLoaded', function () {
-  document.querySelector('#changeServer').onclick = function () {
-    database.moveTo({
-      lobby: parseInt(document.querySelector('#lobby').value),
-      id: parseInt(document.querySelector('#player').value)
+  document.querySelector('#connect').onclick = function () {
+    database.connect({
+      lobby: document.querySelector('#lobby').value,
+      id: document.querySelector('#player').value
     })
-    database.listen(opponent)
+  }
+  document.querySelector('#disconnect').onclick = function () {
+    database.disconnect()
+    database.remove()
   }
 })
 
