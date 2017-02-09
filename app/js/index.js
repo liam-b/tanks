@@ -79,20 +79,16 @@ var database = new Firebase (firebase)
 
 Matter.Events.on(engine, 'beforeUpdate', function () {
   if (database.connected) {
-    if (doConnected) {
-      connected()
-      doConnected = false
-    }
-    else {
-      update()
-    }
+    update()
   }
 })
 
+function disconnected () {
+  opponents.reset()
+}
+
 function connected () {
   opponents.generate(database.data, database.id)
-
-  console.log(opponents.collection)
 }
 
 function update () {
@@ -108,16 +104,22 @@ function update () {
 
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#connect').onclick = function () {
-    database.connect({
-      lobby: document.querySelector('#lobby').value,
-      id: document.querySelector('#player').value
-    })
+    new Promise (function (resolve, reject) {
+      database.connect({
+        lobby: document.querySelector('#lobby').value,
+        id: document.querySelector('#player').value
+      }, resolve)
+    }).then(connected)
   }
   document.querySelector('#disconnect').onclick = function () {
     database.disconnect()
-    database.remove()
   }
 })
+
+window.addEventListener('beforeunload', function (event) {
+  database.disconnect()
+  disconnected()
+}, false)
 
 Matter.Engine.run(engine)
 Matter.Render.run(render)

@@ -15,4 +15,8 @@ export default class Opponent extends Tank {
 
     this.Matter.Body.setVelocity(this.body, data.velocity)
   }
+
+  remove () {
+    this.Matter.World.remove(this.engine.world, [this.body, this.turret, this.circle])
+  }
 }

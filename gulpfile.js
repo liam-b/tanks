@@ -2,6 +2,12 @@ var gulp = require('gulp')
 var sass = require('gulp-sass')
 var pug = require('gulp-pug')
 var webpack = require('webpack-stream')
+var ghPages = require('gulp-gh-pages');
+
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*')
+    .pipe(ghPages())
+})
 
 gulp.task('sass', function () {
   return gulp.src('app/scss/**/*.sass')

@@ -16,16 +16,53 @@ export default class OpponentCollection {
         this.collection.push(new Opponent(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]))
       }
     }
-    console.log(this.collection)
   }
 
   update (data, id) {
+    var collectedOpponents = []
     for (var opponent in this.collection) {
       if (this.collection.hasOwnProperty(opponent)) {
-        // FIXME: while 0 is 'two' in collection, 0 is 'liam' in data
-        // console.log(opponent, Object.keys(data), Object.keys(this.collection))
+        collectedOpponents.push(this.collection[opponent].id)
+      }
+    }
+
+    var leaves = collectedOpponents.filter(function (current) {
+      return Object.keys(data).indexOf(current) === -1
+    })
+
+    var joins = Object.keys(data).filter(function (current) {
+      return collectedOpponents.indexOf(current) === -1
+    })
+
+    for (var leave = 0; leave < leaves.length; leave += 1) {
+      for (var opponent in this.collection) {
+        if (this.collection.hasOwnProperty(opponent) && this.collection[opponent].id == leaves[leave]) {
+          this.collection[opponent].remove()
+          this.collection.splice(opponent, 1)
+        }
+      }
+    }
+
+    for (var join = 0; join < joins.length; join += 1) {
+      if (joins[join] != id) {
+        this.collection.push(new Opponent(this.Matter, this.render, this.engine, this.color, joins[join]))
+      }
+    }
+
+    for (var opponent in this.collection) {
+      if (this.collection.hasOwnProperty(opponent)) {
         this.collection[opponent].update(data[this.collection[opponent].id])
       }
     }
+  }
+
+  reset () {
+    for (var opponent in this.collection) {
+      if (this.collection.hasOwnProperty(opponent)) {
+        this.collection[opponent].remove()
+      }
+    }
+
+    this.collection = []
   }
 }

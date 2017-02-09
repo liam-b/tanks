@@ -10,8 +10,8 @@ export default class Firebase {
 
     this.base = firebase.database()
 
-    this.lobby = -1
-    this.id = 0
+    this.lobby = ''
+    this.id = ''
 
     this.listener
 
@@ -19,19 +19,34 @@ export default class Firebase {
     this.data = {}
   }
 
-  connect (info) {
+  connect (info, resolve) {
     this.lobby = info.lobby
     this.id = info.id
 
-    this.listen()
+    this.base.ref(`lobbies/${this.lobby}/players/${this.id}`).set({
+      position: {
+        x: 0,
+        y: 0
+      },
+      velocity: {
+        x: 0,
+        y: 0
+      },
+      rotation: 0,
+      gunRotation: 0,
+      awake: new Date().valueOf()
+    })
+
+    this.listen(resolve)
   }
 
   disconnect () {
-    this.lobby = -1
-    this.id = 0
-    this.connected = false
+    this.base.ref(`lobbies/${this.lobby}/players/`).off('value', this.listener)
+    this.base.ref(`lobbies/${this.lobby}/players/${this.id}`).remove()
 
-    this.base.ref.off(this.listener)
+    this.lobby = ''
+    this.id = ''
+    this.connected = false
   }
 
   upload (player, engine) {
@@ -53,7 +68,7 @@ export default class Firebase {
     }
   }
 
-  listen () {
+  listen (resolve) {
     var doSetup = true
     var that = this
     this.listener = this.base.ref(`lobbies/${this.lobby}/players`).on('value', function (snapshot) {
@@ -61,6 +76,7 @@ export default class Firebase {
         that.data = snapshot.val()
         that.connected = true
         doSetup = false
+        resolve()
       }
       else {
         that.data = snapshot.val()
