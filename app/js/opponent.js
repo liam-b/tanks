@@ -12,5 +12,7 @@ export default class Opponent extends Tank {
     this.Matter.Body.setPosition(this.turret, {x: this.body.position.x, y: this.body.position.y + 25})
     this.rotateAroundPoint(data.gunRotation, data.position)
     this.Matter.Body.setPosition(this.circle, {x: this.body.position.x, y: this.body.position.y})
+
+    this.Matter.Body.setVelocity(this.body, data.velocity)
   }
 }

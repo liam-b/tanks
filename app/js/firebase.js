@@ -42,8 +42,8 @@ export default class Firebase {
           y: player.body.position.y
         },
         velocity: {
-          x: 0,
-          y: 0
+          x: player.body.velocity.x,
+          y: player.body.velocity.y
         },
         rotation: player.body.angle,
         gunRotation: player.turret.angle,
