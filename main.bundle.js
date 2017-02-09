@@ -395,7 +395,7 @@
 	      bullet: 0x0002
 	    };
 
-	    this.firebaseDelay = 500;
+	    this.firebaseDelay = 50;
 	    this.firebaseCounter = 0;
 
 	    this.bullets = [];
@@ -561,9 +561,11 @@
 	    value: function update(data) {
 	      this.Matter.Body.setPosition(this.body, data.position);
 	      this.Matter.Body.setAngle(this.body, data.rotation);
-	      this.rotateAroundPoint(data.gunRotation, { x: this.body.position.x, y: this.body.position.y });
 	      this.Matter.Body.setPosition(this.turret, { x: this.body.position.x, y: this.body.position.y + 25 });
+	      this.rotateAroundPoint(data.gunRotation, data.position);
 	      this.Matter.Body.setPosition(this.circle, { x: this.body.position.x, y: this.body.position.y });
+
+	      this.Matter.Body.setVelocity(this.body, data.velocity);
 	    }
 	  }]);
 
@@ -636,8 +638,8 @@
 	            y: player.body.position.y
 	          },
 	          velocity: {
-	            x: 0,
-	            y: 0
+	            x: player.body.velocity.x,
+	            y: player.body.velocity.y
 	          },
 	          rotation: player.body.angle,
 	          gunRotation: player.turret.angle,
