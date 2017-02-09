@@ -178,9 +178,13 @@
 	  };
 	  document.querySelector('#disconnect').onclick = function () {
 	    database.disconnect();
-	    disconnected();
 	  };
 	});
+
+	window.addEventListener('beforeunload', function (event) {
+	  database.disconnect();
+	  disconnected();
+	}, false);
 
 	_matterJs2.default.Engine.run(engine);
 	_matterJs2.default.Render.run(render);
@@ -505,26 +509,32 @@
 	    value: function update(data, id) {
 	      var collectedOpponents = [];
 	      for (var opponent in this.collection) {
-	        if (this.collection.hasOwnProperty(opponent)) {}
-	        collectedOpponents.push(this.collection[opponent].id);
+	        if (this.collection.hasOwnProperty(opponent)) {
+	          collectedOpponents.push(this.collection[opponent].id);
+	        }
 	      }
 
-	      var changes = collectedOpponents.filter(function (current) {
+	      var leaves = collectedOpponents.filter(function (current) {
 	        return Object.keys(data).indexOf(current) === -1;
 	      });
 
-	      // console.log(changes)
+	      var joins = Object.keys(data).filter(function (current) {
+	        return collectedOpponents.indexOf(current) === -1;
+	      });
 
-	      for (var change = 0; change < changes.length; change += 1) {
-	        if (collectedOpponents.includes(changes[change])) {
-	          for (var opponent in this.collection) {
-	            if (this.collection.hasOwnProperty(opponent) && this.collection[opponent].id == changes[change]) {
-	              this.collection[opponent].remove();
-	              this.collection.splice(opponent, 1);
-	            }
+	      for (var leave = 0; leave < leaves.length; leave += 1) {
+	        for (var opponent in this.collection) {
+	          if (this.collection.hasOwnProperty(opponent) && this.collection[opponent].id == leaves[leave]) {
+	            this.collection[opponent].remove();
+	            this.collection.splice(opponent, 1);
 	          }
-	        } else console.log('join');
-	        console.log(this.collection);
+	        }
+	      }
+
+	      for (var join = 0; join < joins.length; join += 1) {
+	        if (joins[join] != id) {
+	          this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, joins[join]));
+	        }
 	      }
 
 	      for (var opponent in this.collection) {
@@ -532,13 +542,16 @@
 	          this.collection[opponent].update(data[this.collection[opponent].id]);
 	        }
 	      }
-
-	      // console.log(changes)
-	      // console.log(collectedOpponents)
 	    }
 	  }, {
 	    key: 'reset',
 	    value: function reset() {
+	      for (var opponent in this.collection) {
+	        if (this.collection.hasOwnProperty(opponent)) {
+	          this.collection[opponent].remove();
+	        }
+	      }
+
 	      this.collection = [];
 	    }
 	  }]);
@@ -649,6 +662,20 @@
 	    value: function connect(info, resolve) {
 	      this.lobby = info.lobby;
 	      this.id = info.id;
+
+	      this.base.ref("lobbies/" + this.lobby + "/players/" + this.id).set({
+	        position: {
+	          x: 0,
+	          y: 0
+	        },
+	        velocity: {
+	          x: 0,
+	          y: 0
+	        },
+	        rotation: 0,
+	        gunRotation: 0,
+	        awake: new Date().valueOf()
+	      });
 
 	      this.listen(resolve);
 	    }
