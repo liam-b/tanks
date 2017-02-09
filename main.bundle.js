@@ -144,19 +144,16 @@
 
 	_matterJs2.default.Events.on(engine, 'beforeUpdate', function () {
 	  if (database.connected) {
-	    if (doConnected) {
-	      connected();
-	      doConnected = false;
-	    } else {
-	      update();
-	    }
+	    update();
 	  }
 	});
 
+	function disconnected() {
+	  opponents.reset();
+	}
+
 	function connected() {
 	  opponents.generate(database.data, database.id);
-
-	  console.log(opponents.collection);
 	}
 
 	function update() {
@@ -172,14 +169,16 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 	  document.querySelector('#connect').onclick = function () {
-	    database.connect({
-	      lobby: document.querySelector('#lobby').value,
-	      id: document.querySelector('#player').value
-	    });
+	    new Promise(function (resolve, reject) {
+	      database.connect({
+	        lobby: document.querySelector('#lobby').value,
+	        id: document.querySelector('#player').value
+	      }, resolve);
+	    }).then(connected);
 	  };
 	  document.querySelector('#disconnect').onclick = function () {
 	    database.disconnect();
-	    database.remove();
+	    disconnected();
 	  };
 	});
 
@@ -500,18 +499,47 @@
 	          this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]));
 	        }
 	      }
-	      console.log(this.collection);
 	    }
 	  }, {
 	    key: 'update',
 	    value: function update(data, id) {
+	      var collectedOpponents = [];
+	      for (var opponent in this.collection) {
+	        if (this.collection.hasOwnProperty(opponent)) {}
+	        collectedOpponents.push(this.collection[opponent].id);
+	      }
+
+	      var changes = collectedOpponents.filter(function (current) {
+	        return Object.keys(data).indexOf(current) === -1;
+	      });
+
+	      // console.log(changes)
+
+	      for (var change = 0; change < changes.length; change += 1) {
+	        if (collectedOpponents.includes(changes[change])) {
+	          for (var opponent in this.collection) {
+	            if (this.collection.hasOwnProperty(opponent) && this.collection[opponent].id == changes[change]) {
+	              this.collection[opponent].remove();
+	              this.collection.splice(opponent, 1);
+	            }
+	          }
+	        } else console.log('join');
+	        console.log(this.collection);
+	      }
+
 	      for (var opponent in this.collection) {
 	        if (this.collection.hasOwnProperty(opponent)) {
-	          // FIXME: while 0 is 'two' in collection, 0 is 'liam' in data
-	          // console.log(opponent, Object.keys(data), Object.keys(this.collection))
 	          this.collection[opponent].update(data[this.collection[opponent].id]);
 	        }
 	      }
+
+	      // console.log(changes)
+	      // console.log(collectedOpponents)
+	    }
+	  }, {
+	    key: 'reset',
+	    value: function reset() {
+	      this.collection = [];
 	    }
 	  }]);
 
@@ -567,6 +595,11 @@
 
 	      this.Matter.Body.setVelocity(this.body, data.velocity);
 	    }
+	  }, {
+	    key: 'remove',
+	    value: function remove() {
+	      this.Matter.World.remove(this.engine.world, [this.body, this.turret, this.circle]);
+	    }
 	  }]);
 
 	  return Opponent;
@@ -602,8 +635,8 @@
 
 	    this.base = firebase.database();
 
-	    this.lobby = -1;
-	    this.id = 0;
+	    this.lobby = '';
+	    this.id = '';
 
 	    this.listener;
 
@@ -613,20 +646,21 @@
 
 	  _createClass(Firebase, [{
 	    key: "connect",
-	    value: function connect(info) {
+	    value: function connect(info, resolve) {
 	      this.lobby = info.lobby;
 	      this.id = info.id;
 
-	      this.listen();
+	      this.listen(resolve);
 	    }
 	  }, {
 	    key: "disconnect",
 	    value: function disconnect() {
-	      this.lobby = -1;
-	      this.id = 0;
-	      this.connected = false;
+	      this.base.ref("lobbies/" + this.lobby + "/players/").off('value', this.listener);
+	      this.base.ref("lobbies/" + this.lobby + "/players/" + this.id).remove();
 
-	      this.base.ref.off(this.listener);
+	      this.lobby = '';
+	      this.id = '';
+	      this.connected = false;
 	    }
 	  }, {
 	    key: "upload",
@@ -650,7 +684,7 @@
 	    }
 	  }, {
 	    key: "listen",
-	    value: function listen() {
+	    value: function listen(resolve) {
 	      var doSetup = true;
 	      var that = this;
 	      this.listener = this.base.ref("lobbies/" + this.lobby + "/players").on('value', function (snapshot) {
@@ -658,6 +692,7 @@
 	          that.data = snapshot.val();
 	          that.connected = true;
 	          doSetup = false;
+	          resolve();
 	        } else {
 	          that.data = snapshot.val();
 	        }
