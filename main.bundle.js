@@ -546,12 +546,7 @@
 	  }, {
 	    key: 'reset',
 	    value: function reset() {
-	      for (var opponent in this.collection) {
-	        if (this.collection.hasOwnProperty(opponent)) {
-	          this.collection[opponent].remove();
-	        }
-	      }
-
+	      this.Matter.World.clear(this.engine.world);
 	      this.collection = [];
 	    }
 	  }]);
@@ -604,6 +599,7 @@
 	      if (data.awake > this.oldStamp) {
 	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
+	        this.body.torque = data.torque;
 	        this.Matter.Body.setAngle(this.body, data.rotation);
 	        this.rotateAroundPoint(data.gunRotation, data.position);
 
@@ -611,11 +607,6 @@
 	      }
 	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
 	      this.Matter.Body.setPosition(this.circle, data.position);
-	    }
-	  }, {
-	    key: 'remove',
-	    value: function remove() {
-	      this.Matter.World.remove(this.engine.world, [this.body, this.turret, this.circle]);
 	    }
 	  }]);
 
@@ -707,6 +698,7 @@
 	            y: player.body.velocity.y
 	          },
 	          rotation: player.body.angle,
+	          torque: player.body.torque,
 	          gunRotation: player.turret.angle,
 	          awake: new Date().valueOf()
 	        });
