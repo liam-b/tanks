@@ -603,8 +603,8 @@
 	      if (data.awake > this.oldStamp) {
 	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
-	        if (typeof data.torque == 'number') {
-	          this.body.torque = data.torque * 15;
+	        if (typeof data.torque == 'number' && data.torque > 0.00001) {
+	          this.body.torque = data.torquSpeed;
 	        }
 	        this.Matter.Body.setAngle(this.body, data.rotation);
 
@@ -707,6 +707,7 @@
 	          },
 	          rotation: player.body.angle,
 	          torque: player.body.torque,
+	          torqueSpeed: player.settings.turnSpeed,
 	          gunRotation: player.turret.angle,
 	          awake: new Date().valueOf()
 	        });
