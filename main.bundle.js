@@ -605,12 +605,12 @@
 	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
 	        this.Matter.Body.setAngle(this.body, data.rotation);
-	        this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
 	        this.rotateAroundPoint(data.gunRotation, data.position);
-	        this.Matter.Body.setPosition(this.circle, data.position);
 
 	        this.oldStamp = data.awake;
 	      }
+	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
+	      this.Matter.Body.setPosition(this.circle, data.position);
 	    }
 	  }, {
 	    key: 'remove',
