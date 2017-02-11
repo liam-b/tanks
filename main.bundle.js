@@ -702,20 +702,25 @@
 	      if (player.firebaseCounter <= engine.timing.timestamp && this.connected) {
 	        this.base.ref("lobbies/" + this.lobby + "/players/" + this.id).set({
 	          position: {
-	            x: player.body.position.x,
-	            y: player.body.position.y
+	            x: this.round(player.body.position.x),
+	            y: this.round(player.body.position.y)
 	          },
 	          velocity: {
-	            x: player.body.velocity.x,
-	            y: player.body.velocity.y
+	            x: this.round(player.body.velocity.x),
+	            y: this.round(player.body.velocity.y)
 	          },
-	          rotation: player.body.angle,
+	          rotation: this.round(player.body.angle),
 	          torque: player.body.torque,
-	          gunRotation: player.turret.angle,
+	          gunRotation: this.round(player.turret.angle),
 	          awake: new Date().valueOf()
 	        });
 	        player.firebaseCounter = engine.timing.timestamp + player.firebaseDelay;
 	      }
+	    }
+	  }, {
+	    key: "round",
+	    value: function round(num) {
+	      return parseFloat(num.toFixed(2));
 	    }
 	  }, {
 	    key: "listen",
