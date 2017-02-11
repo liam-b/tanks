@@ -398,7 +398,7 @@
 	      bullet: 0x0002
 	    };
 
-	    this.firebaseDelay = 300;
+	    this.firebaseDelay = 80;
 	    this.firebaseCounter = 0;
 
 	    this.bullets = [];
@@ -437,7 +437,7 @@
 	    this.body.friction = 1;
 	    this.body.restitution = 0;
 
-	    Matter.World.add(engine.world, [this.body, this.turret, this.circle]);
+	    this.Matter.World.add(this.engine.world, [this.body, this.turret, this.circle]);
 	  }
 
 	  _createClass(Tank, [{
@@ -500,7 +500,7 @@
 	    value: function generate(opponents, id) {
 	      for (var opponent in opponents) {
 	        if (opponents.hasOwnProperty(opponent) && Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)] != id) {
-	          this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]));
+	          var newTank = this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]));
 	        }
 	      }
 	    }
@@ -596,14 +596,16 @@
 	  _createClass(Opponent, [{
 	    key: 'update',
 	    value: function update(data) {
-	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
-	      this.Matter.Body.setPosition(this.circle, data.position);
-	      this.rotateAroundPoint(data.gunRotation, data.position);
+	      this.Matter.Body.setPosition(this.turret, { x: this.body.position.x, y: this.body.position.y + 25 });
+	      this.Matter.Body.setPosition(this.circle, this.body.position);
+	      this.rotateAroundPoint(data.gunRotation, this.body.position);
 
 	      if (data.awake > this.oldStamp) {
 	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
-	        this.body.torque = data.torque;
+	        if (typeof data.torque == 'number') {
+	          this.body.torque = data.torque * 15;
+	        }
 	        this.Matter.Body.setAngle(this.body, data.rotation);
 
 	        this.oldStamp = data.awake;
