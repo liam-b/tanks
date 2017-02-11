@@ -11,3 +11,11 @@ canvas {
   color: #555;
   margin-top: 20px;
   margin-bottom: 20px; }
+
+#version {
+  font-size: 20;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: bold;
+  text-align: center;
+  color: #555;
+  margin-bottom: 40px; }
