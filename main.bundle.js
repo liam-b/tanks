@@ -596,17 +596,18 @@
 	  _createClass(Opponent, [{
 	    key: 'update',
 	    value: function update(data) {
+	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
+	      this.Matter.Body.setPosition(this.circle, data.position);
+	      this.rotateAroundPoint(data.gunRotation, data.position);
+
 	      if (data.awake > this.oldStamp) {
 	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
 	        this.body.torque = data.torque;
 	        this.Matter.Body.setAngle(this.body, data.rotation);
-	        this.rotateAroundPoint(data.gunRotation, data.position);
 
 	        this.oldStamp = data.awake;
 	      }
-	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
-	      this.Matter.Body.setPosition(this.circle, data.position);
 	    }
 	  }]);
 
