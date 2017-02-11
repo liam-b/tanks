@@ -400,7 +400,7 @@
 	      bullet: 0x0002
 	    };
 
-	    this.firebaseDelay = 200;
+	    this.firebaseDelay = 500;
 	    this.firebaseCounter = 0;
 
 	    this.bullets = [];
@@ -435,7 +435,7 @@
 	      }
 	    });
 
-	    this.body.frictionAir = 0.05;
+	    this.body.frictionAir = 0.045;
 	    this.body.friction = 1;
 	    this.body.restitution = 0;
 
