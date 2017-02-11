@@ -498,6 +498,7 @@
 	  _createClass(OpponentCollection, [{
 	    key: 'generate',
 	    value: function generate(opponents, id) {
+	      this.reset();
 	      for (var opponent in opponents) {
 	        if (opponents.hasOwnProperty(opponent) && Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)] != id) {
 	          var newTank = this.collection.push(new _opponent2.default(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]));
