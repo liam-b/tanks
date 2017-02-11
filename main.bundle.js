@@ -609,6 +609,11 @@
 	        this.oldStamp = data.awake;
 	      }
 	    }
+	  }, {
+	    key: 'remove',
+	    value: function remove() {
+	      this.Matter.World.remove(this.engine.world, [this.body, this.turret, this.circle]);
+	    }
 	  }]);
 
 	  return Opponent;
