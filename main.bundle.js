@@ -138,7 +138,7 @@
 
 	var doConnected = true;
 
-	var player = new _player2.default(_matterJs2.default, render, engine, '#4ECDC4');
+	var player;
 	var opponents = new _opponents2.default(_matterJs2.default, render, engine, '#C44D58');
 	var database = new _firebase2.default(firebase);
 
@@ -154,6 +154,7 @@
 
 	function connected() {
 	  opponents.generate(database.data, database.id);
+	  player = new _player2.default(_matterJs2.default, render, engine, '#4ECDC4');
 	}
 
 	function update() {
@@ -178,6 +179,7 @@
 	  };
 	  document.querySelector('#disconnect').onclick = function () {
 	    database.disconnect();
+	    disconnected();
 	  };
 	});
 
