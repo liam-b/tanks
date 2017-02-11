@@ -594,18 +594,23 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Opponent).call(this, Matter, render, engine, color));
 
 	    _this.id = id;
+	    _this.oldStamp = 0;
 	    return _this;
 	  }
 
 	  _createClass(Opponent, [{
 	    key: 'update',
 	    value: function update(data) {
-	      this.Matter.Body.setVelocity(this.body, data.velocity);
-	      // this.Matter.Body.setPosition(this.body, data.position)
-	      this.Matter.Body.setAngle(this.body, data.rotation);
-	      this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
-	      this.rotateAroundPoint(data.gunRotation, data.position);
-	      this.Matter.Body.setPosition(this.circle, data.position);
+	      if (data.awake > this.oldStamp) {
+	        this.Matter.Body.setVelocity(this.body, data.velocity);
+	        this.Matter.Body.setPosition(this.body, data.position);
+	        this.Matter.Body.setAngle(this.body, data.rotation);
+	        this.Matter.Body.setPosition(this.turret, { x: data.position.x, y: data.position.y + 25 });
+	        this.rotateAroundPoint(data.gunRotation, data.position);
+	        this.Matter.Body.setPosition(this.circle, data.position);
+
+	        this.oldStamp = data.awake;
+	      }
 	    }
 	  }, {
 	    key: 'remove',
