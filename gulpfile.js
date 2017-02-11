@@ -4,7 +4,7 @@ var pug = require('gulp-pug')
 var webpack = require('webpack-stream')
 var ghPages = require('gulp-gh-pages');
 
-gulp.task('deploy', function() {
+gulp.task('deploy', ['sass', 'webpack', 'pug'], function() {
   return gulp.src('./dist/**/*')
     .pipe(ghPages())
 })

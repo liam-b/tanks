@@ -12,7 +12,7 @@ export default class Tank {
       bullet: 0x0002
     }
 
-    this.firebaseDelay = 50
+    this.firebaseDelay = 200
     this.firebaseCounter = 0
 
     this.bullets = []
@@ -51,7 +51,7 @@ export default class Tank {
     this.body.friction = 1
     this.body.restitution = 0
 
-    Matter.World.add(engine.world, [this.body, this.turret, this.circle])
+    this.Matter.World.add(this.engine.world, [this.body, this.turret, this.circle])
   }
 
   rotateAroundPoint (rotation, point) {

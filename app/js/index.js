@@ -73,7 +73,7 @@ var boundingRectangle = canvas.getBoundingClientRect()
 
 var doConnected = true
 
-var player = new Player (Matter, render, engine, '#4ECDC4')
+var player
 var opponents = new OpponentCollection (Matter, render, engine, '#C44D58')
 var database = new Firebase (firebase)
 
@@ -89,6 +89,7 @@ function disconnected () {
 
 function connected () {
   opponents.generate(database.data, database.id)
+  player = new Player (Matter, render, engine, '#4ECDC4')
 }
 
 function update () {
@@ -113,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   document.querySelector('#disconnect').onclick = function () {
     database.disconnect()
+    disconnected()
   }
 })
 

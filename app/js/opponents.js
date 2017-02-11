@@ -11,9 +11,10 @@ export default class OpponentCollection {
   }
 
   generate (opponents, id) {
+    this.reset()
     for (var opponent in opponents) {
       if (opponents.hasOwnProperty(opponent) && Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)] != id) {
-        this.collection.push(new Opponent(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]))
+        let newTank = this.collection.push(new Opponent(this.Matter, this.render, this.engine, this.color, Object.keys(opponents)[Object.keys(opponents).indexOf(opponent)]))
       }
     }
   }
@@ -57,12 +58,7 @@ export default class OpponentCollection {
   }
 
   reset () {
-    for (var opponent in this.collection) {
-      if (this.collection.hasOwnProperty(opponent)) {
-        this.collection[opponent].remove()
-      }
-    }
-
+    this.Matter.World.clear(this.engine.world)
     this.collection = []
   }
 }
