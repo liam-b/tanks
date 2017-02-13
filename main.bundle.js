@@ -400,7 +400,7 @@
 	      bullet: 0x0002
 	    };
 
-	    this.firebaseDelay = 80;
+	    this.firebaseDelay = 50;
 	    this.firebaseCounter = 0;
 
 	    this.bullets = [];
