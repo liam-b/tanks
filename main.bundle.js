@@ -304,10 +304,10 @@
 	      var rotation = this.body.angle + 90 * Math.PI / 180;
 
 	      if (input.key.w) {
-	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
+	        this.Matter.Body.applyForce(this.body, this.body.position, { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
 	      }
 	      if (input.key.s) {
-	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
+	        this.Matter.Body.applyForce(this.body, this.body.position, { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
 	      }
 	      if (input.key.a) {
 	        this.body.torque = -this.settings.turnSpeed;
@@ -400,7 +400,7 @@
 	      bullet: 0x0002
 	    };
 
-	    this.firebaseDelay = 500;
+	    this.firebaseDelay = 250;
 	    this.firebaseCounter = 0;
 
 	    this.bullets = [];
@@ -619,10 +619,10 @@
 	      var rotation = this.body.angle + 90 * Math.PI / 180;
 
 	      if (data.forward) {
-	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
+	        this.Matter.Body.applyForce(this.body, this.body.position, { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
 	      }
 	      if (data.backward) {
-	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
+	        this.Matter.Body.applyForce(this.body, this.body.position, { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
 	      }
 	      if (data.left) {
 	        this.body.torque = -this.settings.turnSpeed;
