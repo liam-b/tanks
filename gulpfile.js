@@ -28,7 +28,7 @@ gulp.task('webpack', function () {
 })
 
 gulp.task('watch', ['sass', 'webpack', 'pug'], function () {
-  gulp.watch('app/scss/**/*.scss', ['sass'])
+  gulp.watch('app/scss/**/*.sass', ['sass'])
   gulp.watch('app/js/**/*.js', ['webpack'])
   gulp.watch('app/*.pug', ['pug'])
 })
