@@ -632,8 +632,8 @@
 	      }
 
 	      if (data.awake > this.oldStamp) {
-	        this.Matter.Body.setPosition(this.body, data.position);
-	        this.Matter.Body.setAngle(this.body, data.rotation);
+	        // this.Matter.Body.setPosition(this.body, data.position)
+	        // this.Matter.Body.setAngle(this.body, data.rotation)
 
 	        this.oldStamp = data.awake;
 	      }
