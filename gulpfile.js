@@ -6,7 +6,7 @@ var ghPages = require('gulp-gh-pages');
 
 gulp.task('deploy', ['sass', 'webpack', 'pug'], function() {
   return gulp.src('./dist/**/*')
-    .pipe(ghPages())
+    .pipe(ghPages({message: 'deployed to gh-pages'}))
 })
 
 gulp.task('sass', function () {
