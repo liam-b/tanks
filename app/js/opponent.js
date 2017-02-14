@@ -5,6 +5,19 @@ export default class Opponent extends Tank {
     super(Matter, render, engine, color)
     this.id = id
     this.oldStamp = 0
+
+    this.settings = {
+      speed: 0.001,
+      turnSpeed: 0.04,
+      health: 100,
+      shot: {
+        speed: 0.004,
+        reload: 200,
+        distance: 1000,
+        spray: 4,
+        damage: 10
+      }
+    }
   }
 
   update (data) {
@@ -12,16 +25,18 @@ export default class Opponent extends Tank {
     this.Matter.Body.setPosition(this.circle, this.body.position)
     this.rotateAroundPoint(data.gunRotation, this.body.position)
 
-    if (forward) {
-      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
+    let rotation = this.body.angle + (90 * Math.PI / 180)
+
+    if (data.forward) {
+      this.Matter.Body.applyForce(this.body, this.body.position, {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
     }
-    if (backward) {
-      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
+    if (data.backward) {
+      this.Matter.Body.applyForce(this.body, this.body.position, {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
     }
-    if (left) {
+    if (data.left) {
       this.body.torque = -this.settings.turnSpeed
     }
-    if (right) {
+    if (data.right) {
       this.body.torque = this.settings.turnSpeed
     }
 

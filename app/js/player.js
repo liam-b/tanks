@@ -32,10 +32,10 @@ export default class Player extends Tank {
     let rotation = this.body.angle + (90 * Math.PI / 180)
 
     if (input.key.w) {
-      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
+      this.Matter.Body.applyForce(this.body, this.body.position, {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
     }
     if (input.key.s) {
-      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
+      this.Matter.Body.applyForce(this.body, this.body.position, {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
     }
     if (input.key.a) {
       this.body.torque = -this.settings.turnSpeed
