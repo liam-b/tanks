@@ -162,7 +162,7 @@
 
 	  opponents.update(database.data, database.id);
 
-	  player.update(input, boundingRectangle);
+	  player.update(input, boundingRectangle, database.data.liam);
 	  _matterJs2.default.Bounds.shift(render.bounds, { x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2 });
 
 	  database.upload(player, input.key, engine);
@@ -291,29 +291,44 @@
 
 	  _createClass(Player, [{
 	    key: 'update',
-	    value: function update(input, boundingRectangle) {
+	    value: function update(input, boundingRectangle, fire) {
 	      this.Matter.Body.setPosition(this.turret, { x: this.body.position.x, y: this.body.position.y + 25 });
 	      this.Matter.Body.setPosition(this.circle, { x: this.body.position.x, y: this.body.position.y });
-	      this._handleInput(input, boundingRectangle);
+	      this._handleInput(input, boundingRectangle, fire);
 	    }
 	  }, {
 	    key: '_handleInput',
-	    value: function _handleInput(input, boundingRectangle) {
+	    value: function _handleInput(input, boundingRectangle, fire) {
 	      this.rotateAroundPoint(-Math.atan2(input.mouse.x - this.render.options.width / 2 - boundingRectangle.left, input.mouse.y - this.render.options.height / 2 - boundingRectangle.top), { x: this.body.position.x, y: this.body.position.y });
 
 	      var rotation = this.body.angle + 90 * Math.PI / 180;
 
-	      if (input.key.w) {
-	        this.Matter.Body.applyForce(this.body, this.body.position, { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
-	      }
-	      if (input.key.s) {
-	        this.Matter.Body.applyForce(this.body, this.body.position, { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
-	      }
-	      if (input.key.a) {
-	        this.body.torque = -this.settings.turnSpeed;
-	      }
-	      if (input.key.d) {
-	        this.body.torque = this.settings.turnSpeed;
+	      // if (input.key.w) {
+	      //   this.Matter.Body.applyForce(this.body, this.body.position, {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
+	      // }
+	      // if (input.key.s) {
+	      //   this.Matter.Body.applyForce(this.body, this.body.position, {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
+	      // }
+	      // if (input.key.a) {
+	      //   this.body.torque = -this.settings.turnSpeed
+	      // }
+	      // if (input.key.d) {
+	      //   this.body.torque = this.settings.turnSpeed
+	      // }
+
+	      if (typeof fire != 'undefined') {
+	        if (fire.forward) {
+	          this.Matter.Body.applyForce(this.body, this.body.position, { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
+	        }
+	        if (fire.back) {
+	          this.Matter.Body.applyForce(this.body, this.body.position, { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
+	        }
+	        if (fire.left) {
+	          this.body.torque = -this.settings.turnSpeed;
+	        }
+	        if (fire.right) {
+	          this.body.torque = this.settings.turnSpeed;
+	        }
 	      }
 
 	      if (input.key.space) {
@@ -632,8 +647,8 @@
 	      }
 
 	      if (data.awake > this.oldStamp) {
-	        // this.Matter.Body.setPosition(this.body, data.position)
-	        // this.Matter.Body.setAngle(this.body, data.rotation)
+	        this.Matter.Body.setPosition(this.body, data.position);
+	        this.Matter.Body.setAngle(this.body, data.rotation);
 
 	        this.oldStamp = data.awake;
 	      }
