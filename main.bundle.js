@@ -165,7 +165,7 @@
 	  player.update(input, boundingRectangle);
 	  _matterJs2.default.Bounds.shift(render.bounds, { x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2 });
 
-	  database.upload(player, engine);
+	  database.upload(player, input.key, engine);
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
@@ -603,12 +603,20 @@
 	      this.Matter.Body.setPosition(this.circle, this.body.position);
 	      this.rotateAroundPoint(data.gunRotation, this.body.position);
 
-	      if (typeof data.torque == 'number') {
-	        this.body.torque = data.torque;
+	      if (forward) {
+	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation) });
+	      }
+	      if (backward) {
+	        this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), { x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation) });
+	      }
+	      if (left) {
+	        this.body.torque = -this.settings.turnSpeed;
+	      }
+	      if (right) {
+	        this.body.torque = this.settings.turnSpeed;
 	      }
 
 	      if (data.awake > this.oldStamp) {
-	        this.Matter.Body.setVelocity(this.body, data.velocity);
 	        this.Matter.Body.setPosition(this.body, data.position);
 	        this.Matter.Body.setAngle(this.body, data.rotation);
 
@@ -698,19 +706,18 @@
 	    }
 	  }, {
 	    key: "upload",
-	    value: function upload(player, engine) {
+	    value: function upload(player, keys, engine) {
 	      if (player.firebaseCounter <= engine.timing.timestamp && this.connected) {
 	        this.base.ref("lobbies/" + this.lobby + "/players/" + this.id).set({
 	          position: {
 	            x: this.round(player.body.position.x),
 	            y: this.round(player.body.position.y)
 	          },
-	          velocity: {
-	            x: this.round(player.body.velocity.x),
-	            y: this.round(player.body.velocity.y)
-	          },
+	          forward: keys.w,
+	          back: keys.s,
+	          left: keys.a,
+	          right: keys.d,
 	          rotation: this.round(player.body.angle),
-	          torque: player.body.torque,
 	          gunRotation: this.round(player.turret.angle),
 	          awake: new Date().valueOf()
 	        });
