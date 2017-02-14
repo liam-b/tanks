@@ -12,12 +12,20 @@ export default class Opponent extends Tank {
     this.Matter.Body.setPosition(this.circle, this.body.position)
     this.rotateAroundPoint(data.gunRotation, this.body.position)
 
-    if (typeof data.torque == 'number') {
-      this.body.torque = data.torque
+    if (forward) {
+      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: -this.settings.speed * Math.cos(rotation), y: -this.settings.speed * Math.sin(rotation)})
+    }
+    if (backward) {
+      this.Matter.Body.applyForce(this.body, this.Matter.Vector.create(this.body.position.x, this.body.position.y), {x: this.settings.speed * Math.cos(rotation), y: this.settings.speed * Math.sin(rotation)})
+    }
+    if (left) {
+      this.body.torque = -this.settings.turnSpeed
+    }
+    if (right) {
+      this.body.torque = this.settings.turnSpeed
     }
 
     if (data.awake > this.oldStamp) {
-      this.Matter.Body.setVelocity(this.body, data.velocity)
       this.Matter.Body.setPosition(this.body, data.position)
       this.Matter.Body.setAngle(this.body, data.rotation)
 

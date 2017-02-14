@@ -100,7 +100,7 @@ function update () {
   player.update(input, boundingRectangle)
   Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
 
-  database.upload(player, engine)
+  database.upload(player, input.key, engine)
 }
 
 document.addEventListener('DOMContentLoaded', function () {

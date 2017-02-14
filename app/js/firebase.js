@@ -49,19 +49,18 @@ export default class Firebase {
     this.connected = false
   }
 
-  upload (player, engine) {
+  upload (player, keys, engine) {
     if (player.firebaseCounter <= engine.timing.timestamp && this.connected) {
       this.base.ref(`lobbies/${this.lobby}/players/${this.id}`).set({
         position: {
           x: this.round(player.body.position.x),
           y: this.round(player.body.position.y)
         },
-        velocity: {
-          x: this.round(player.body.velocity.x),
-          y: this.round(player.body.velocity.y)
-        },
+        forward: keys.w,
+        back: keys.s,
+        left: keys.a,
+        right: keys.d,
         rotation: this.round(player.body.angle),
-        torque: player.body.torque,
         gunRotation: this.round(player.turret.angle),
         awake: new Date().valueOf()
       })
