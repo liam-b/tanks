@@ -97,10 +97,10 @@ function update () {
 
   opponents.update(database.data, database.id)
 
-  player.update(input, boundingRectangle)
+  player.update({key: database.data[database.id].key, mouse: input.mouse}, boundingRectangle)
   Matter.Bounds.shift(render.bounds, {x: player.body.position.x - render.options.width / 2, y: player.body.position.y - render.options.height / 2})
 
-  database.upload(player, engine)
+  database.upload(player, engine, input)
 }
 
 document.addEventListener('DOMContentLoaded', function () {

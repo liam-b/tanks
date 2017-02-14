@@ -12,7 +12,7 @@ export default class Tank {
       bullet: 0x0002
     }
 
-    this.firebaseDelay = 50
+    this.firebaseDelay = 300
     this.firebaseCounter = 0
 
     this.bullets = []
